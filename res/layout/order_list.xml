@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="@dimen/normal_height"
+    android:baselineAligned="false"
+    android:gravity="bottom"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:drawable/divider_horizontal_dark" />
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/normal_height"
+        android:gravity="center_vertical"
+        android:ignoreGravity="@+id/icon" >
+
+        <ImageView
+            android:id="@+id/grabber"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:src="@drawable/ic_grabber" />
+
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="10.0dip"
+            android:src="@drawable/ic_pref_battery" />
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@id/icon"
+            android:layout_toRightOf="@id/grabber"
+            android:ellipsize="marquee"
+            android:gravity="center_vertical"
+            android:paddingLeft="9.0dip"
+            android:paddingRight="9.0dip"
+            android:singleLine="true"
+            android:textColor="@android:color/primary_text_light_nodisable" />
+    </RelativeLayout>
+
+</LinearLayout>

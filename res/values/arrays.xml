@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="customstyle_entries">
+        <item>@string/customstyle.left</item>
+        <item>@string/customstyle.center</item>
+        <item>@string/customstyle.right</item>
+        <item>@string/customstyle.notif</item>
+        <item>@string/customstyle.stat</item>
+        <item>@string/customstyle.signal</item>
+        <item>@string/customstyle.battery</item>
+        <item>@string/customstyle.clock</item>
+    </string-array>
+    <string-array name="customstyle_value">
+        <item>left</item>
+        <item>center</item>
+        <item>right</item>
+        <item>notif</item>
+        <item>stat</item>
+        <item>signal</item>
+        <item>battery</item>
+        <item>clock</item>
+    </string-array>
+</resources>

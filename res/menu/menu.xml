@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="org.illegaler.ratabb.motogrep.lollipop.CustomStyle" >
+
+    <item
+        android:id="@+id/restart_ui"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/restart_ui"/>
+    <item
+        android:id="@+id/exit"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/exit"/>
+
+</menu>

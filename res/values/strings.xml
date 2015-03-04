@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">MotoGrep2</string>
+    <string name="app_desc">Mari Bermain</string>
+    
+    <string name="customstyle.left">Left</string>
+    <string name="customstyle.center">Center</string>
+    <string name="customstyle.right">Right</string>
+    <string name="customstyle.notif">Notification</string>
+    <string name="customstyle.stat">Status</string>
+    <string name="customstyle.signal">Signal</string>
+    <string name="customstyle.battery">Battery</string>
+    <string name="customstyle.clock">Clock</string>
+    <string name="restart_ui">Restart SystemUI</string>
+    <string name="exit">Exit</string>
+    
+</resources>
