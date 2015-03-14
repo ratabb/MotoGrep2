@@ -2,32 +2,25 @@ package org.illegaler.ratabb.motogrep.lollipop.mod;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.illegaler.ratabb.motogrep.lollipop.MotoGrepModule;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.XResources;
-import android.content.res.XResources.DrawableLoader;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.util.DisplayMetrics;
-import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
-import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResourcesParam;
 import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 import static org.illegaler.ratabb.motogrep.lollipop.Constant.*;
 
 public class ModIconStatusBar {
 	private static final String TAG = "ModIcon ";
-	// private static XSharedPreferences pref;
-	private static Object mPhoneStatusbar;
-	private static Context mContext;
-	private static Map<String, String> otherIconList = null;
+	private static XSharedPreferences pref;
+//	private static Object mPhoneStatusbar;
+	// private static Context mContext;
+
+	private static List<String> otherPkg = new ArrayList<String>();
+	private static List<String> otherIcon = new ArrayList<String>();
 
 	private static List<String> IC_SYSBAR;
 	private static List<String> OTHER;
@@ -58,31 +51,28 @@ public class ModIconStatusBar {
 
 	private static void replaceOtherPackage(InitPackageResourcesParam resparam)
 			throws Throwable {
-		// FIXME
-		String stringPkg = resparam.packageName;
-		if (stringPkg.equals(otherIconList.keySet())) {
-			String resDrawableName = otherIconList.get(stringPkg);
-			String pngName = stringPkg + "#" + resDrawableName;
-
-			if (getResExisted(stringPkg, resparam.res, resDrawableName)
-					&& getIconReplacementExisted(PATH_ICON_OTHER, pngName)) {
+		getListOtherPackageIcons();
+		for (int i = 0; i < otherPkg.size(); i++) {
+			String pkg = otherPkg.get(i);
+			String res = otherIcon.get(i);
+			String png = pkg + "#" + res;
+			if (pkg.equals(resparam.packageName)) {
 				try {
-
-					resparam.res.setReplacement(stringPkg, "drawable",
-							resDrawableName, getIcon(PATH_ICON_OTHER, pngName));
-
+					resparam.res.setReplacement(pkg, "drawable", res,
+							DrawUtils.getIcon(pref, PATH_ICON_OTHER, png));
 				} catch (Throwable t) {
 					MotoGrepModule.xLog(TAG + "replaceOther " + t.getMessage());
 				}
 			}
 		}
+
 	}
 
-	private static Map<String, String> getListOtherPackageIcon() {
-		Map<String, String> returnMap = null;
+	private static void getListOtherPackageIcons() {
 		File iconOtherDir = new File(PATH_ICON_OTHER);
 		if (iconOtherDir.isDirectory()) {
 			File[] listFile = iconOtherDir.listFiles();
+
 			for (File file : listFile) {
 				String fullFileName = file.getName();
 				if (fullFileName.endsWith("png")) {
@@ -90,120 +80,84 @@ public class ModIconStatusBar {
 					String key = fileName[0];
 					String value = fileName[1].substring(0,
 							fileName[1].length() - 4);
-					returnMap = new HashMap<String, String>();
-					returnMap.put(key, value);
-					// Log
-					MotoGrepModule.xLog("key:" + key + " value:" + value);
+					otherPkg.add(key);
+					otherIcon.add(value);
+
 				}
 			}
 		}
-		return returnMap;
 	}
 
 	private static void replaceResourceSytemUI(XResources xresource) {
-
-		for (String string : IC_SYSBAR) {
-			if (getResExisted(SYSTEMUI_PKG, xresource, string)
-					&& getIconReplacementExisted(PATH_ICON, string)) {
-
-				xresource.setReplacement(SYSTEMUI_PKG, "drawable", string,
-						getIcon(PATH_ICON, string));
-
-			}
-		}
 		// FIXME
-		for (String string : OTHER) {
-			if (getResExisted(SYSTEMUI_PKG, xresource, string)
-					&& getIconReplacementExisted(PATH_ICON, string)) {
-				xresource.setReplacement(SYSTEMUI_PKG, "drawable", string,
-						getIcon(PATH_ICON, string));
+		try {
+			for (String string : IC_SYSBAR) {
+				if (getResExisted(SYSTEMUI_PKG, xresource, string)
+						&& getIconReplacementExisted(PATH_ICON, string)) {
+
+					xresource.setReplacement(SYSTEMUI_PKG, "drawable", string,
+							DrawUtils.getIcon(pref, PATH_ICON, string));
+
+				}
 			}
+
+			for (String string : OTHER) {
+				if (getResExisted(SYSTEMUI_PKG, xresource, string)
+						&& getIconReplacementExisted(PATH_ICON, string)) {
+					xresource.setReplacement(SYSTEMUI_PKG, "drawable", string,
+							DrawUtils.getIcon(pref, PATH_ICON, string));
+				}
+			}
+		} catch (Throwable t) {
+			MotoGrepModule.xLog(TAG + "replaceResourceSytemUI "
+					+ t.getMessage());
 		}
-
-	}
-
-	private static DrawableLoader getIcon(String stringPath, String name) {
-		final File pngFile = new File(stringPath + "/" + name + ".png");
-
-		DrawableLoader dl = new DrawableLoader() {
-			@Override
-			public Drawable newDrawable(XResources res, int id)
-					throws Throwable {
-				BitmapDrawable bd = (BitmapDrawable) Drawable
-						.createFromPath(pngFile.getAbsolutePath());
-				// TODO
-
-				DisplayMetrics metric = mContext.getResources()
-						.getDisplayMetrics();
-				bd.setTargetDensity(metric);
-
-				return bd;
-			}
-		};
-
-		return dl;
 	}
 
 	private static Boolean getResExisted(String pkgName, Resources resources,
 			String string) {
-		boolean ret = false;
-
-		ret = (resources.getIdentifier(string, "drawable", pkgName) != 0);
-
-		if (!ret)
-			MotoGrepModule.xLog(TAG + "Resource not found: " + string);
-
-		return ret;
+		return (resources.getIdentifier(string, "drawable", pkgName) != 0);
 	}
 
 	private static Boolean getIconReplacementExisted(String stringPath,
 			String name) {
-		boolean ret = false;
-
-		ret = ((File) new File(stringPath + "/" + name + ".png")).exists();
-
-		if (!ret)
-			MotoGrepModule.xLog(TAG + "File not found: " + name);
-
-		return ret;
+		return ((File) new File(stringPath + "/" + name + ".png")).exists();
 	}
 
 	/** public Xposed metode */
 
 	public static void initZygote(XSharedPreferences xpref) throws Throwable {
-		// pref = xpref;
-
-		otherIconList = getListOtherPackageIcon();
+		pref = xpref;
 		setResListSystemUI();
 	}
 
 	public static void handleLoadPackage(LoadPackageParam lpparam)
 			throws Throwable {
-
-		if (lpparam.packageName.equals(SYSTEMUI_PKG)) {
-			try {
-				final Class<?> phoneStatusBar = XposedHelpers.findClass(
-						CLASS_PHONE_STATUSBAR, lpparam.classLoader);
-
-				XposedHelpers.findAndHookMethod(phoneStatusBar,
-						"makeStatusBarView", new XC_MethodHook() {
-							@Override
-							protected void beforeHookedMethod(
-									MethodHookParam param) throws Throwable {
-								mPhoneStatusbar = param.thisObject;
-								mContext = (Context) XposedHelpers
-										.getObjectField(mPhoneStatusbar,
-												"mContext");
-
-								super.beforeHookedMethod(param);
-							}
-						});
-
-			} catch (Throwable t) {
-				MotoGrepModule
-						.xLog(TAG + "handleLoadPackage " + t.getMessage());
-			}
-		}
+		//
+		// if (lpparam.packageName.equals(SYSTEMUI_PKG)) {
+		// try {
+		// final Class<?> phoneStatusBar = XposedHelpers.findClass(
+		// CLASS_PHONE_STATUSBAR, lpparam.classLoader);
+		//
+		// XposedHelpers.findAndHookMethod(phoneStatusBar,
+		// "makeStatusBarView", new XC_MethodHook() {
+		// @Override
+		// protected void beforeHookedMethod(
+		// MethodHookParam param) throws Throwable {
+		// mPhoneStatusbar = param.thisObject;
+		// mContext = (Context) XposedHelpers
+		// .getObjectField(mPhoneStatusbar,
+		// "mContext");
+		//
+		// super.beforeHookedMethod(param);
+		// }
+		// });
+		//
+		// } catch (Throwable t) {
+		// MotoGrepModule
+		// .xLog(TAG + "handleLoadPackage " + t.getMessage());
+		// }
+		// }
 	}
 
 	public static void handleInitPackageResources(
@@ -222,10 +176,7 @@ public class ModIconStatusBar {
 		}
 
 		// icon statusbar other
-
-		else if (otherIconList != null) {
-			replaceOtherPackage(resparam);
-		}
+		replaceOtherPackage(resparam);
 
 	}
 }

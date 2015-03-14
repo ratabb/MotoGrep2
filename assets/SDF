@@ -1,0 +1,29 @@
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<pre>	 	^ : [Uppercase]
+	
+	SimpleDateFormat
+	
+		D : day in year
+		E : day of week
+		F : day of week in month
+		G : era designator
+		H : hour in day (0-23)
+		K : hour in am/pm (0-11)
+		L : stand-alone month
+		M : month in year
+		S : fractional seconds
+		W : week in month
+		Z : time zone (RFC 822)
+		a : am/pm marker
+		c : stand-alone day of week
+		d : day in month
+		h : hour in am/pm (1-12)
+		k : hour in day (1-24)
+		m : minute in hour
+		s : second in minute
+		w : week in year
+		y : year
+		z : time zone
+		' : escape for text
+		'' : single quote</pre>
+

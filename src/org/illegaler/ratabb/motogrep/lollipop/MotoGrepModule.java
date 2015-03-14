@@ -24,7 +24,8 @@ public class MotoGrepModule implements IXposedHookZygoteInit,
 	/**
 	 * Xposed Log
 	 * 
-	 * @param string log
+	 * @param string
+	 *            log
 	 */
 	public static void xLog(String string) {
 

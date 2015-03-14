@@ -9,6 +9,11 @@
         android:showAsAction="never"
         android:title="@string/restart_ui"/>
     <item
+        android:id="@+id/clocktext"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/clock_text"/>
+    <item
         android:id="@+id/exit"
         android:orderInCategory="100"
         android:showAsAction="never"

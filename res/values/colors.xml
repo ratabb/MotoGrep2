@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <color name="background_listview">#7ff3f3f3</color>
-    <color name="dragndrop_background">#ff0099cc</color>
-<color name="background_headerlistview">#ff33b5e5</color>
+    <color name="background_listview">#fff3f3f3</color>
+    <color name="background_dragndrop">#ff0099cc</color>
+    <color name="background_headerlistview">#ff33b5e5</color>
+    <color name="background_actionbar">#ff33b5e5</color>
+    <color name="actionbar_text">#ffffffff</color>
+
 </resources>

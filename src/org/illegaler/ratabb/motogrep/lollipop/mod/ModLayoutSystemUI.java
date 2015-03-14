@@ -20,8 +20,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.os.Process;
+
 import org.illegaler.ratabb.motogrep.lollipop.MotoGrepModule;
-import org.illegaler.ratabb.motogrep.lollipop.RLParam;
+import org.illegaler.ratabb.motogrep.lollipop.mod.TrafficMeterAbstract.TrafficMeterMode;
 
 import static org.illegaler.ratabb.motogrep.lollipop.Constant.*;
 
@@ -29,7 +30,7 @@ public class ModLayoutSystemUI {
 	private static final String TAG = "ModLayout ";
 	private static final String STATUSBAR = "status_bar";
 	private static final String SIGNAL_CLUSTER_VIEW = "signal_cluster_view";
-	private static final String KEYGUARD_STATUS_BAR = "keyguard_status_bar";
+	// private static final String KEYGUARD_STATUS_BAR = "keyguard_status_bar";
 
 	private static Context mContext;
 
@@ -40,6 +41,17 @@ public class ModLayoutSystemUI {
 	private static LinearLayout LEOT_SIGNAL;
 	private static LinearLayout LEOT_BATTERY;
 	private static LinearLayout LEOT_CLOCK;
+
+	private static LinearLayout.LayoutParams llparam_full = new LinearLayout.LayoutParams(
+			LinearLayout.LayoutParams.MATCH_PARENT,
+			LinearLayout.LayoutParams.MATCH_PARENT);
+
+	private static StatusBarBattery mStatusBarBattery;
+	private static StatusBarClock mStatusBarClock;
+	private static List<BroadcastSubReceiver> mBroadcastSubReceivers = new ArrayList<BroadcastSubReceiver>();
+
+	// private static TrafficMeter mTraffic;
+	private static TrafficMeterAbstract mTraffic;
 
 	private static XSharedPreferences pref;
 	private static List<String> mStyleList;
@@ -56,7 +68,7 @@ public class ModLayoutSystemUI {
 	private static final int LOC_LEFT = 0x001;
 	private static final int LOC_CENTER = 0x002;
 	private static final int LOC_RIGHT = 0x003;
-	
+
 	private static int LOC;
 
 	private static int getLOC() {
@@ -72,6 +84,11 @@ public class ModLayoutSystemUI {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
+
+			for (BroadcastSubReceiver bsr : mBroadcastSubReceivers) {
+				bsr.onBroadcastReceived(context, intent);
+			}
+
 			if (action.equals(ACTION_UPDATE)) {
 				try {
 					updateStyleStatusbar();
@@ -150,11 +167,12 @@ public class ModLayoutSystemUI {
 
 				}
 			} else if (position > 1) {
-				int l = getLOC();
-				if (l == LOC_LEFT) {
+
+				if (getLOC() == LOC_LEFT) {
 					leot.setLayoutParams(RLParam
 							.RIGHT_OF(getIdLayout(index), w));
-				} else if (l == LOC_CENTER) {
+				} else if (getLOC() == LOC_CENTER) {
+
 					if (position == 2) {
 						leot.setLayoutParams(RLParam.RIGHT_OF(
 								getIdLayout(index), w));
@@ -172,7 +190,7 @@ public class ModLayoutSystemUI {
 								getIdLayout(index - 1), w));
 					}
 
-				} else if (l == LOC_RIGHT) {
+				} else if (getLOC() == LOC_RIGHT) {
 					leot.setLayoutParams(RLParam.LEFT_OF(getIdLayout(index), w));
 				}
 
@@ -277,9 +295,9 @@ public class ModLayoutSystemUI {
 
 						mContext = mView.getContext();
 
-						//FIXME layout overlap 
+						// FIXME notif layout overlap
 						LEOT_MAIN = new RelativeLayout(mContext);
-						
+
 						LEOT_NOTIF = new LinearLayout(mContext);
 						LEOT_STAT = new LinearLayout(mContext);
 						LEOT_SIGNAL = new LinearLayout(mContext);
@@ -303,6 +321,12 @@ public class ModLayoutSystemUI {
 						LEOT_BATTERY.setGravity(Gravity.CENTER_VERTICAL);
 						LEOT_CLOCK.setGravity(Gravity.CENTER_VERTICAL);
 
+						LEOT_NOTIF.setPadding(2, 0, 2, 0);
+						LEOT_STAT.setPadding(2, 0, 2, 0);
+						LEOT_SIGNAL.setPadding(2, 0, 2, 0);
+						LEOT_BATTERY.setPadding(2, 0, 2, 0);
+						LEOT_CLOCK.setPadding(2, 0, 2, 0);
+
 						FrameLayout notif = (FrameLayout) LEOT_ROOT
 								.findViewById(getIdViewByName(liparam,
 										"notification_icon_area"));
@@ -322,37 +346,72 @@ public class ModLayoutSystemUI {
 								.findViewById(getIdViewByName(liparam,
 										"signal_cluster"));
 						systemIcon.removeView(signal);
-						LEOT_SIGNAL.addView(signal);
+
+						// TODO
+						mTraffic = TrafficMeterAbstract.create(mContext,
+								TrafficMeterMode.OMNI);
+						mTraffic.initialize(pref);
+						mBroadcastSubReceivers.add(mTraffic);
+						LEOT_SIGNAL.addView(mTraffic, 0);
+						LEOT_SIGNAL.addView(signal, 1);
 
 						View battery = (View) systemIcon
 								.findViewById(getIdViewByName(liparam,
 										"battery"));
-						systemIcon.removeView(battery);
-						LEOT_BATTERY.addView(battery);
+						// systemIcon.removeView(battery);
+						// LEOT_BATTERY.addView(battery);
+						//
+						mStatusBarBattery = new StatusBarBattery(pref);
+						mStatusBarBattery.initialize(battery);
+						mBroadcastSubReceivers.add(mStatusBarBattery);
+						// LEOT_BATTERY.addView(
+						// mStatusBarBattery.getBatteryText());
+						LEOT_BATTERY.addView(mStatusBarBattery
+								.getBatteryImage());
 
 						LinearLayout systemIconArea = (LinearLayout) LEOT_ROOT
 								.findViewById(getIdViewByName(liparam,
 										"system_icon_area"));
 						TextView clock = (TextView) systemIconArea
 								.findViewById(getIdViewByName(liparam, "clock"));
-						systemIconArea.removeView(clock);
-						LEOT_CLOCK.addView(clock);
 
+						systemIconArea.removeView(clock);
+						// clock.setPaddingRelative(2, 0, 2, 0);
+						// LEOT_CLOCK.addView(clock);
+
+						mStatusBarClock = new StatusBarClock(pref);
+						mStatusBarClock.initialize(clock);
+						mBroadcastSubReceivers.add(mStatusBarClock);
+						LEOT_CLOCK.addView(mStatusBarClock.getClock());
+
+						/**  **/
 						LEOT_MAIN.addView(LEOT_NOTIF);
 						LEOT_MAIN.addView(LEOT_STAT);
 						LEOT_MAIN.addView(LEOT_SIGNAL);
 						LEOT_MAIN.addView(LEOT_BATTERY);
 						LEOT_MAIN.addView(LEOT_CLOCK);
 
-						LEOT_ROOT.addView(LEOT_MAIN,
+						systemIconArea.setLayoutParams(llparam_full);
+						systemIconArea.setPadding(0, 0, 0, 0);
+						systemIconArea.addView(LEOT_MAIN,
 								LinearLayout.LayoutParams.MATCH_PARENT,
 								LinearLayout.LayoutParams.MATCH_PARENT);
+						//
+						// LEOT_ROOT.addView(LEOT_MAIN,
+						// LinearLayout.LayoutParams.MATCH_PARENT,
+						// LinearLayout.LayoutParams.MATCH_PARENT);
 
 						updateStyleStatusbar();
 
 						IntentFilter filter = new IntentFilter();
 						filter.addAction(ACTION_UPDATE);
 						filter.addAction(ACTION_RESTART_SYSTEMUI);
+						filter.addAction(ACTION_TRAFIC_UPDATE);
+						filter.addAction(ACTION_CLOCK_TEXT);
+						filter.addAction(Intent.ACTION_BATTERY_CHANGED);
+						filter.addAction(Intent.ACTION_TIME_TICK);
+						filter.addAction(Intent.ACTION_TIME_CHANGED);
+						filter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
 						mContext.registerReceiver(receiver, filter);
 
 					} catch (Throwable t) {
@@ -405,54 +464,50 @@ public class ModLayoutSystemUI {
 				}
 			};
 
-			XC_LayoutInflated keyguardStatusbarHook = new XC_LayoutInflated() {
-
-				@Override
-				public void handleLayoutInflated(LayoutInflatedParam liparam)
-						throws Throwable {
-
-					try {
-
-						View mView = liparam.view;
-
-						FrameLayout multiUserView = (FrameLayout) mView
-								.findViewById(getIdViewByName(liparam,
-										"multi_user_switch"));
-
-						// FIXME: remove statusbar overlaping at lockscreen
-						// multiUserView
-						// .setLayoutParams(RLParam
-						// .TENGAH(android.view.ViewGroup.LayoutParams.WRAP_CONTENT));
-
-						RelativeLayout rootLayout = (RelativeLayout) multiUserView
-								.getParent();
-
-						int childCount = rootLayout.getChildCount();
-
-						for (int i = 0; i < childCount; i++) {
-							View childView = rootLayout.getChildAt(i);
-							childView.setVisibility(View.GONE);
-
-						}
-
-					} catch (Throwable t) {
-						MotoGrepModule.xLog("keyguardStatusbarHook "
-								+ t.getMessage());
-					}
-
-				}
-			};
+			// XC_LayoutInflated keyguardStatusbarHook = new XC_LayoutInflated()
+			// {
+			//
+			// @Override
+			// public void handleLayoutInflated(LayoutInflatedParam liparam)
+			// throws Throwable {
+			//
+			// try {
+			//
+			// View mView = liparam.view;
+			//
+			// FrameLayout multiUserView = (FrameLayout) mView
+			// .findViewById(getIdViewByName(liparam,
+			// "multi_user_switch"));
+			//
+			// RelativeLayout rootLayout = (RelativeLayout) multiUserView
+			// .getParent();
+			//
+			// int childCount = rootLayout.getChildCount();
+			//
+			// for (int i = 0; i < childCount; i++) {
+			// View childView = rootLayout.getChildAt(i);
+			// childView.setVisibility(View.GONE);
+			//
+			// }
+			//
+			// } catch (Throwable t) {
+			// MotoGrepModule.xLog("keyguardStatusbarHook "
+			// + t.getMessage());
+			// }
+			//
+			// }
+			// };
 
 			try {
 
 				xresource.hookLayout(SYSTEMUI_PKG, "layout", STATUSBAR,
-						statusBarHook);// mContext 
+						statusBarHook);// mContext
 
-				xresource.hookLayout(SYSTEMUI_PKG, "layout", SIGNAL_CLUSTER_VIEW,
-						signalClusterViewHook);
+				xresource.hookLayout(SYSTEMUI_PKG, "layout",
+						SIGNAL_CLUSTER_VIEW, signalClusterViewHook);
 
-				xresource.hookLayout(SYSTEMUI_PKG, "layout", KEYGUARD_STATUS_BAR,
-						keyguardStatusbarHook);
+				// xresource.hookLayout(SYSTEMUI_PKG, "layout",
+				// KEYGUARD_STATUS_BAR, keyguardStatusbarHook);
 
 			} catch (Throwable t) {
 				MotoGrepModule.xLog("handleInitPackageResources "

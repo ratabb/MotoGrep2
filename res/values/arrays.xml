@@ -21,4 +21,11 @@
         <item>battery</item>
         <item>clock</item>
     </string-array>
-</resources>
+    <string-array name="menus">
+        <item>@string/menu.style</item>
+        <item>@string/menu.setting</item>
+        <item>@string/menu.theme</item>
+        <item>@string/menu.backup</item>
+        <item>@string/menu.about</item>
+    </string-array>
+</resources>

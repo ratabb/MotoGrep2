@@ -1,4 +1,7 @@
-package org.illegaler.ratabb.motogrep.lollipop;
+/*
+ * (c) dcsms Omzen
+ */
+package org.illegaler.ratabb.motogrep.lollipop.mod;
 
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;

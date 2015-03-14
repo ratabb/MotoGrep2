@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">MotoGrep2</string>
+    <string name="app_name">MotoGrep</string>
     <string name="app_desc">Mari Bermain</string>
-    
+    <string name="app_ver">1.0 beta 1</string>
     <string name="customstyle.left">Left</string>
     <string name="customstyle.center">Center</string>
     <string name="customstyle.right">Right</string>
@@ -14,5 +14,28 @@
     <string name="customstyle.clock">Clock</string>
     <string name="restart_ui">Restart SystemUI</string>
     <string name="exit">Exit</string>
-    
+    <string name="clock_text">Clock Text Help</string>
+    <string name="default_clock">hh:mm a</string>
+    <string name="menu.theme">Themes Manager</string>
+    <string name="menu.style">Style</string>
+    <string name="menu.setting">Configuration</string>
+    <string name="menu.backup">Backup Theme</string>
+    <string name="menu.about">About</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="pref.name.clocktext">Clock Text</string>
+    <string name="pref.name.restartui">Restart SystemUI</string>
+    <!-- aa -->
+    <string name="version">Version: %s</string>
+    <string name="lodo_desc">Logo MotoGrep</string>
+    <string name="thanksto_title">Thanks to</string>
+    <string name="restart_menu_message">"SystemUI will be restarted now!
+
+Warning:
+Possible theme and/or wallpaper loss. Restart process can take a while (just wait)!!"</string>
+    <string name="thanks_to_all"><![CDATA[<b>rovo89</b> <a href="http://forum.xda-developers.com/showthread.php?t=1574401">Xposed framework</a><br>
+<b>c3c076</b> <a href="http://forum.xda-developers.com/showthread.php?t=3037566">GravityBox module</a><br>
+<b>dcsms</b> <a href="http://github.com/jmkl/OMzen">Omzen module</a><br>
+<b>serajr</b> <a href="http://github.com/serajr/Blurred-System-UI">Blurred SystemUI module</a>]]></string>
+
 </resources>
