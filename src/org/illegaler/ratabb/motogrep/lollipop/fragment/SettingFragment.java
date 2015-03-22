@@ -18,6 +18,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.EditTextPreference;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceFragment;
@@ -36,6 +37,7 @@ public class SettingFragment extends PreferenceFragment implements
 
 	private EditTextPreference etClock;
 	private Preference pRestartUI;
+	private ListPreference lpDataTrafic, lpBatteryText;
 
 	public SettingFragment(Context context, SharedPreferences pref) {
 		mContext = context;
@@ -51,12 +53,21 @@ public class SettingFragment extends PreferenceFragment implements
 	}
 
 	@Override
+	public void onPause() {
+		mSPreferences.unregisterOnSharedPreferenceChangeListener(this);
+		dismissDialog();
+		super.onPause();
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		addPreferencesFromResource(R.xml.motogrep_setting);
 
 		etClock = (EditTextPreference) findPreference(PREF_KEY_CLOCK_TEXT);
 		pRestartUI = (Preference) findPreference(PREF_KEY_RESTART_UI);
+		lpDataTrafic = (ListPreference) findPreference(PREF_KEY_DATA_TRAFFIC);
+		lpBatteryText = (ListPreference) findPreference(PREF_KEY_BATTERY_TEXT);
 		return super.onCreateView(inflater, container, savedInstanceState);
 
 	}
@@ -74,7 +85,6 @@ public class SettingFragment extends PreferenceFragment implements
 			showRestartSystemUIDialog();
 			return true;
 		}
-
 		return false;
 	}
 
@@ -82,7 +92,12 @@ public class SettingFragment extends PreferenceFragment implements
 		if ((pref == null) || (pref.equals(PREF_KEY_CLOCK_TEXT))) {
 			etClock.setSummary(etClock.getText());
 		}
-
+		if ((pref == null) || (pref.equals(PREF_KEY_DATA_TRAFFIC))) {
+			lpDataTrafic.setSummary(lpDataTrafic.getEntry());
+		}
+		if ((pref == null) || (pref.equals(PREF_KEY_BATTERY_TEXT))) {
+			lpBatteryText.setSummary(lpBatteryText.getEntry());
+		}
 	}
 
 	private void showRestartSystemUIDialog() {
@@ -97,6 +112,7 @@ public class SettingFragment extends PreferenceFragment implements
 						Intent intent = new Intent(ACTION_RESTART_SYSTEMUI);
 						mContext.sendBroadcast(intent);
 						dialog.dismiss();
+						getActivity().finish();
 					}
 				});
 		d.show();
@@ -111,10 +127,10 @@ public class SettingFragment extends PreferenceFragment implements
 
 	private ProgressDialog getProgressDialog(Context c) {
 		ProgressDialog ret = new ProgressDialog(c);
-		ret.setTitle("Wait");
-		ret.setMessage("Loading...");
+		ret.setCancelable(false);
+		ret.setTitle("Please wait");
+		ret.setMessage("Prosesing ...");
 		ret.setIndeterminate(true);
-
 		return ret;
 	}
 
@@ -129,17 +145,37 @@ public class SettingFragment extends PreferenceFragment implements
 			if (isFalidFormat(etClock.getText().toString())) {
 				intent = new Intent(ACTION_CLOCK_TEXT);
 			} else {
+				dismissDialog();
 				etClock.setText(getString(R.string.default_clock));
 				Toast.makeText(mContext, "Input wrong", Toast.LENGTH_SHORT)
 						.show();
 			}
 		}
+
+		if (string.equals(PREF_KEY_DATA_TRAFFIC)) {// trafic
+			intent = new Intent(ACTION_TRAFIC_UPDATE);
+			intent.putExtra(EXTRA_DATA_MODE,
+					mSPreferences.getString(PREF_KEY_DATA_TRAFFIC, "OFF"));
+		}
+
+		if (string.equals(PREF_KEY_ICON_SIGNAL)) {// simple signal
+			intent = new Intent(ACTION_SIMPLE_SIGNAL);
+		}
+		if (string.equals(PREF_KEY_ICON_CARRIER)) {// carreir
+			intent = new Intent(ACTION_UPDATE_CARRIER);
+		}
+		if (string.equals(PREF_KEY_BATTERY_TEXT)) {// battery text
+			intent = new Intent(ACTION_BATTERY_TExT);
+			intent.putExtra(EXTRA_BATTERY_MODE,
+					mSPreferences.getString(PREF_KEY_BATTERY_TEXT, "OFF"));
+		}
+
 		final Intent i = intent;
 		mHandler.postDelayed(new Runnable() {
 			@Override
 			public void run() {
+				dismissDialog();
 				if (i != null) {
-					dismissDialog();
 					mContext.sendBroadcast(i);
 				}
 			}
@@ -147,12 +183,10 @@ public class SettingFragment extends PreferenceFragment implements
 	}
 
 	private boolean isFalidFormat(String string) {
-		if (string.contains("^"))
-			string = string.replace("^", "");
+		string = string.contains("^") ? string.replace("^", "") : string;
 
 		try {
-			SimpleDateFormat sdf = new SimpleDateFormat(string,
-					Locale.getDefault());
+			SimpleDateFormat sdf = new SimpleDateFormat(string, Locale.US);
 			sdf.format(new Date());
 			return true;
 		} catch (NullPointerException npe) {

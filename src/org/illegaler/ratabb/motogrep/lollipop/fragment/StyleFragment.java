@@ -26,7 +26,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-
 public class StyleFragment extends ListFragment {
 	private Context mContext;
 	private ListView mListView;
@@ -212,6 +211,8 @@ public class StyleFragment extends ListFragment {
 							"drawable")).intValue();
 					((ImageView) v.findViewById(R.id.icon))
 							.setImageResource(id);
+					// ((ImageView) v.findViewById(R.id.icon))
+					// .setBackgroundResource(resid);;
 					return v;
 				}
 			} else {

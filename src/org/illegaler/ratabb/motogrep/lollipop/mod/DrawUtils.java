@@ -19,7 +19,8 @@ public class DrawUtils {
 		if (!isExisted(pngFile)) {
 			return null;
 		}
-		DrawableLoader dl = new DrawableLoader() {
+
+		return new DrawableLoader() {
 			@Override
 			public Drawable newDrawable(XResources res, int id)
 					throws Throwable {
@@ -33,7 +34,6 @@ public class DrawUtils {
 			}
 		};
 
-		return dl;
 	}
 
 	public static Drawable getDrawable(final XSharedPreferences pref,

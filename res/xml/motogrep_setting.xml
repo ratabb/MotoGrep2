@@ -1,13 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <EditTextPreference
-        android:defaultValue="@string/default_clock"
-        android:key="clocktext"
-        android:title="@string/pref.name.clocktext" />
+    <PreferenceCategory android:title="Statusbar" >
+        <EditTextPreference
+            android:defaultValue="@string/default_clock"
+            android:key="clocktext"
+            android:title="@string/pref.name.clocktext" />
 
-    <Preference
-        android:key="restart_sysui"
-        android:title="@string/restart_ui" />
+        <ListPreference
+            android:defaultValue="OFF"
+            android:entries="@array/data_traffic_mode_entries"
+            android:entryValues="@array/data_traffic_mode_values"
+            android:key="trafic"
+            android:title="@string/pref.name.trafic" />
+        <ListPreference
+            android:defaultValue="OFF"
+            android:entries="@array/battery_text_mode_entries"
+            android:entryValues="@array/battery_text_mode_values"
+            android:key="batterytext"
+            android:title="@string/pref.name.batterytext" />
+
+        <SwitchPreference
+            android:key="iconsignalstyle"
+            android:summaryOff="@string/pref.sum.off.signalsimple"
+            android:summaryOn="@string/pref.sum.on.signalsimple"
+            android:title="@string/pref.name.signalsimple" />
+        <SwitchPreference
+            android:key="iconcarrier"
+            android:summaryOff="@string/pref.sum.off.carrier"
+            android:summaryOn="@string/pref.sum.on.carrier"
+            android:title="@string/pref.name.carrier" />
+        <SwitchPreference
+            android:key="icondatakitkat"
+            android:summary="@string/pref.sum.datadisable"
+            android:title="@string/pref.name.datadisble" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Tools" >
+        <Preference
+            android:key="restart_sysui"
+            android:summary="force reload SystemUI"
+            android:title="@string/pref.name.restartui" />
+    </PreferenceCategory>
 
 </PreferenceScreen>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string-array name="customstyle_entries">
+    <string-array name="customstyle_entries" translatable="false">
         <item>@string/customstyle.left</item>
         <item>@string/customstyle.center</item>
         <item>@string/customstyle.right</item>
@@ -10,8 +10,10 @@
         <item>@string/customstyle.signal</item>
         <item>@string/customstyle.battery</item>
         <item>@string/customstyle.clock</item>
+        <item>@string/customstyle.carrier</item>
+        <item>@string/customstyle.traffic</item>
     </string-array>
-    <string-array name="customstyle_value">
+    <string-array name="customstyle_value" translatable="false">
         <item>left</item>
         <item>center</item>
         <item>right</item>
@@ -20,12 +22,36 @@
         <item>signal</item>
         <item>battery</item>
         <item>clock</item>
+        <item>carrier</item>
+        <item>traffic</item>
     </string-array>
-    <string-array name="menus">
+    <string-array name="menus" translatable="false">
         <item>@string/menu.style</item>
         <item>@string/menu.setting</item>
         <item>@string/menu.theme</item>
         <item>@string/menu.backup</item>
+        <item>@string/menu.online</item>
         <item>@string/menu.about</item>
     </string-array>
-</resources>
+    <string-array name="data_traffic_mode_entries" translatable="false">
+        <item>@string/dt.mode.off</item>
+        <item>@string/dt.mode.simple</item>
+        <item>@string/dt.mode.omni</item>
+    </string-array>
+    <string-array name="data_traffic_mode_values" translatable="false">
+        <item>OFF</item>
+        <item>SIMPLE</item>
+        <item>OMNI</item>
+    </string-array>
+    <string-array name="battery_text_mode_entries" translatable="false">
+        <item>@string/bt.mode.off</item>
+        <item>@string/bt.mode.withpersen</item>
+        <item>@string/bt.mode.withoutpersen</item>
+    </string-array>
+    <string-array name="battery_text_mode_values" translatable="false">
+        <item>OFF</item>
+        <item>PERSEN</item>
+        <item>NOPERSEN</item>
+    </string-array>
+
+</resources>

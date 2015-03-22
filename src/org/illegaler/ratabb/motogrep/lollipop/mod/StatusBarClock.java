@@ -5,16 +5,20 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.illegaler.ratabb.motogrep.lollipop.MotoGrepModule;
+
 import static org.illegaler.ratabb.motogrep.lollipop.Constant.*;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XSharedPreferences;
 import de.robv.android.xposed.XposedHelpers;
 import android.content.Context;
 import android.content.Intent;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class StatusBarClock implements BroadcastSubReceiver {
-	private static final String TAG = "SB_Clock";
+	private static final String TAG = "SBClock";
 	private static final String key = "sbClock";
 	private TextView mClock;
 	private XSharedPreferences xpref;
@@ -29,19 +33,20 @@ public class StatusBarClock implements BroadcastSubReceiver {
 		txt = txt.isEmpty() ? DEFAULT_CLOCK : txt;
 		boolean uppercase = txt.contains("^") ? true : false;
 		String ok = (uppercase) ? txt.replace("^", "") : txt;
-		SimpleDateFormat sdf = null;
+
+		final SimpleDateFormat defaultSdf = new SimpleDateFormat(DEFAULT_CLOCK,
+				Locale.US);
+		Date now = new Date();
 		try {
-			sdf = new SimpleDateFormat(ok, Locale.US);
+			SimpleDateFormat sdf = new SimpleDateFormat(ok, Locale.US);
+			return (uppercase) ? sdf.format(now).toUpperCase(Locale.US) : sdf
+					.format(now);
 		} catch (NullPointerException npe) {
-			sdf = new SimpleDateFormat(DEFAULT_CLOCK, Locale.US);
+			return defaultSdf.format(now);
 		} catch (IllegalArgumentException iae) {
-			sdf = new SimpleDateFormat(DEFAULT_CLOCK, Locale.US);
+			return defaultSdf.format(now);
 		}
 
-		String currentDateTime = (uppercase) ? sdf.format(new Date())
-				.toUpperCase(Locale.US) : sdf.format(new Date());
-
-		return currentDateTime;
 	}
 
 	private void hookClock() {
@@ -61,14 +66,32 @@ public class StatusBarClock implements BroadcastSubReceiver {
 						}
 					});
 		} catch (Throwable t) {
-			MotoGrepModule.xLog(TAG + "hookClock " + t.getMessage());
+			MotoGrepModule.xLog(TAG, "hookClock " + t.getMessage());
 		}
 
 	}
 
 	private void updateClock() {
-		// TODO
 		mClock.setText(getStringClock());
+	}
+
+	private void setViewClock(Context context) {
+		LinearLayout.LayoutParams lParamsText = new LinearLayout.LayoutParams(
+				LinearLayout.LayoutParams.WRAP_CONTENT,
+				LinearLayout.LayoutParams.MATCH_PARENT);
+
+		int mMargin = (int) TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP, 2, context.getResources()
+						.getDisplayMetrics());
+		lParamsText.setMarginStart(mMargin);
+		lParamsText.setMarginEnd(mMargin);
+		mClock.setLayoutParams(lParamsText);
+		mClock.setGravity(Gravity.CENTER_VERTICAL);
+		mClock.setTextAppearance(
+				context,
+				context.getResources()
+						.getIdentifier("TextAppearance.StatusBar.Clock",
+								"style", SYSTEMUI_PKG));
 	}
 
 	/** public method */
@@ -78,6 +101,7 @@ public class StatusBarClock implements BroadcastSubReceiver {
 
 	public void initialize(TextView paramTextView) {
 		mClock = paramTextView;
+		setViewClock(mClock.getContext());
 		XposedHelpers.setAdditionalInstanceField(mClock, key, true);
 		hookClock();
 		updateClock();
@@ -85,14 +109,12 @@ public class StatusBarClock implements BroadcastSubReceiver {
 
 	@Override
 	public void onBroadcastReceived(Context context, Intent intent) {
-		// TODO Auto-generated method stub
 		String action = intent.getAction();
 		if (action.equals(Intent.ACTION_TIME_TICK)
 				|| action.equals(Intent.ACTION_TIME_CHANGED)
 				|| action.equals(Intent.ACTION_TIMEZONE_CHANGED)
 				|| action.equals(ACTION_CLOCK_TEXT)) {
 			updateClock();
-
 		}
 	}
 

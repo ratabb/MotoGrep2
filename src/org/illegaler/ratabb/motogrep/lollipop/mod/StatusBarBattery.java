@@ -4,13 +4,16 @@ import org.illegaler.ratabb.motogrep.lollipop.MotoGrepModule;
 
 import static org.illegaler.ratabb.motogrep.lollipop.Constant.*;
 import de.robv.android.xposed.XSharedPreferences;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.BatteryManager;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 
@@ -35,28 +38,49 @@ public class StatusBarBattery implements BroadcastSubReceiver {
 	private TextView mBatteryText;
 	private Context mContext;
 	private XSharedPreferences xpref;
+	private BatteryTextMode mBatteryTextMode = BatteryTextMode.OFF;
+
+	public static enum BatteryTextMode {
+		OFF, PERSEN, NOPERSEN
+	}
 
 	public StatusBarBattery(XSharedPreferences pref) {
 		xpref = pref;
-
 	}
 
-	private void setViewBattery() {
+	@SuppressLint("RtlHardcoded")
+	private void setViewBattery(Context context) {
 		mBattery.setVisibility(View.GONE);
-		LayoutParams layoutParams = new LayoutParams(LayoutParams.WRAP_CONTENT,
+		LinearLayout.LayoutParams lParamsText = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+				LinearLayout.LayoutParams.MATCH_PARENT);
+
+		int mMargin = (int) TypedValue.applyDimension(
+				TypedValue.COMPLEX_UNIT_DIP, 2, context.getResources()
+						.getDisplayMetrics());
+		lParamsText.setMarginStart(mMargin);
+		lParamsText.setMarginEnd(mMargin);
+
+		mBatteryText.setLayoutParams(lParamsText);
+		mBatteryText.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+		mBatteryText.setTextAppearance(
+				context,
+				context.getResources()
+						.getIdentifier("TextAppearance.StatusBar.Clock",
+								"style", SYSTEMUI_PKG));
+
+		LayoutParams lParamsImage = new LayoutParams(LayoutParams.WRAP_CONTENT,
 				LayoutParams.WRAP_CONTENT);
-		layoutParams.setMargins(1, 0, 1, 0);
-		mBatteryImage.setLayoutParams(layoutParams);
+		mBatteryImage.setLayoutParams(lParamsImage);
 		mBatteryImage.setAdjustViewBounds(true);
-		mBatteryText.setLayoutParams(layoutParams);
-		mBatteryText.setGravity(Gravity.CENTER_VERTICAL);
 
 	}
 
 	private void updateBattery() {
+
 		String stringPath = PATH_ICON;
 		String[] imgBatt = (charging) ? BATT_IMAGE_CHARGE : BATT_IMAGE;
 		Drawable d = null;
+
 		try {
 			d = DrawUtils.getDrawable(xpref, stringPath,
 					"stat_sys_battery_unknown");
@@ -79,16 +103,35 @@ public class StatusBarBattery implements BroadcastSubReceiver {
 			}
 
 		} catch (Throwable t) {
-			MotoGrepModule.xLog(TAG + "updateBattery " + t.getMessage());
+			MotoGrepModule.xLog(TAG, "updateBattery " + t.getMessage());
 		}
+
 		mBatteryImage.setImageDrawable(d);
-		updateBatteryText();
 	}
 
 	private void updateBatteryText() {
-		String sLevel = String.valueOf(level);
+		xpref.reload();
+		BatteryTextMode mode = BatteryTextMode.valueOf(xpref.getString(
+				PREF_KEY_BATTERY_TEXT, "OFF"));
+		updateBatteryText(mode);
+	}
 
-		mBatteryText.setText(sLevel + "%");
+	private void updateBatteryText(BatteryTextMode mode) {
+		mBatteryTextMode = mode;
+		String string = "";
+
+		if (mBatteryTextMode != BatteryTextMode.OFF) {
+			if (mBatteryTextMode == BatteryTextMode.NOPERSEN) {
+				string = String.valueOf(level);
+			} else if (mBatteryTextMode == BatteryTextMode.PERSEN) {
+				string = String.valueOf(level) + "%";
+			}
+			mBatteryText.setText(string);
+			mBatteryText.setVisibility(View.VISIBLE);
+		} else {
+			mBatteryText.setText(string);
+			mBatteryText.setVisibility(View.GONE);
+		}
 	}
 
 	/** public method */
@@ -106,7 +149,7 @@ public class StatusBarBattery implements BroadcastSubReceiver {
 		mContext = mBattery.getContext();
 		mBatteryImage = new ImageView(mContext);
 		mBatteryText = new TextView(mContext);
-		setViewBattery();
+		setViewBattery(mContext);
 	}
 
 	@Override
@@ -122,9 +165,15 @@ public class StatusBarBattery implements BroadcastSubReceiver {
 				level = i;
 				charging = bool;
 				updateBattery();
+				updateBatteryText();
+			}
+		} else if (action.equals(ACTION_BATTERY_TExT)) {
+			if (intent.hasExtra(EXTRA_BATTERY_MODE)) {
+				BatteryTextMode mode = BatteryTextMode.valueOf(intent
+						.getStringExtra(EXTRA_BATTERY_MODE));
+				updateBatteryText(mode);
 			}
 		}
 
 	}
-
 }

@@ -17,28 +17,25 @@ public class MotoGrepModule implements IXposedHookZygoteInit,
 	public static final String PACKAGE_NAME = MotoGrepModule.class.getPackage()
 			.getName();
 	public static String MODULE_PATH = null;
-
-	private static XSharedPreferences prefs;
+	private static XSharedPreferences pref;
 	private static final String TAG = "MG2:";
+	private static final Boolean DEBUG = true;
 
-	/**
-	 * Xposed Log
-	 * 
-	 * @param string
-	 *            log
-	 */
-	public static void xLog(String string) {
 
-		XposedBridge.log(TAG + string);
+	public static void xLog(String where, String what) {
+		if (DEBUG) {
+			String format = TAG + " %s=%s";
+			XposedBridge.log(String.format(format, where, what));
+		}
 	}
 
 	@Override
 	public void initZygote(StartupParam startupParam) throws Throwable {
 		MODULE_PATH = startupParam.modulePath;
-		prefs = new XSharedPreferences(PACKAGE_NAME);
-		prefs.makeWorldReadable();
-		ModLayoutSystemUI.initZygote(prefs);
-		ModIconStatusBar.initZygote(prefs);
+		pref = new XSharedPreferences(PACKAGE_NAME);
+		pref.makeWorldReadable();
+		ModLayoutSystemUI.initZygote(pref);
+		ModIconStatusBar.initZygote(pref);
 
 	}
 

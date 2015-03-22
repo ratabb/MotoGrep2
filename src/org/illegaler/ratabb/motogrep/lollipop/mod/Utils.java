@@ -24,8 +24,16 @@ import android.net.ConnectivityManager;
 
 public class Utils {
 
-	public static String getProp(String prop) {
+	// XXX
+	public static Boolean isCmFalcon() {
+		return isStringPropEquals("ro.cm.device", "falcon");
+	}
 
+	public static Boolean isStringPropEquals(String prop, String campare) {
+		return getProp(prop).equalsIgnoreCase(campare);
+	}
+
+	public static String getProp(String prop) {
 		Process p = null;
 		String ret = "";
 
@@ -41,7 +49,11 @@ public class Utils {
 			}
 			p.destroy();
 		} catch (IOException ioe) {
-			
+			ret = ("null");
+		} catch (NullPointerException npe) {
+			ret = ("null");
+		} catch (IndexOutOfBoundsException ioobe) {
+			ret = ("null");
 		}
 
 		return ret;
@@ -56,21 +68,22 @@ public class Utils {
 		}
 		return buf;
 	}
-	
-	private static Boolean mIsWifiOnly = null;
-	
-	public static boolean isWifiOnly(Context con) {
-        // returns true if device doesn't support mobile data (is wifi only)
-        if (mIsWifiOnly != null) return mIsWifiOnly;
 
-        try {
-            ConnectivityManager cm = (ConnectivityManager) con.getSystemService(
-                    Context.CONNECTIVITY_SERVICE);
-            mIsWifiOnly = (cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE) == null);
-            return mIsWifiOnly;
-        } catch (Throwable t) {
-            mIsWifiOnly = null;
-            return false;
-        }
-    }
+	private static Boolean mIsWifiOnly = null;
+
+	public static boolean isWifiOnly(Context con) {
+		// returns true if device doesn't support mobile data (is wifi only)
+		if (mIsWifiOnly != null)
+			return mIsWifiOnly;
+
+		try {
+			ConnectivityManager cm = (ConnectivityManager) con
+					.getSystemService(Context.CONNECTIVITY_SERVICE);
+			mIsWifiOnly = (cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE) == null);
+			return mIsWifiOnly;
+		} catch (Throwable t) {
+			mIsWifiOnly = null;
+			return false;
+		}
+	}
 }

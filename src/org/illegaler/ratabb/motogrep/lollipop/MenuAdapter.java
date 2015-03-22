@@ -37,6 +37,7 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
 
 	public static class ViewHolder extends RecyclerView.ViewHolder {
 		public final TextView mTextView;
+
 		public ViewHolder(TextView v) {
 			super(v);
 			mTextView = v;
@@ -67,4 +68,5 @@ public class MenuAdapter extends RecyclerView.Adapter<MenuAdapter.ViewHolder> {
 	public int getItemCount() {
 		return mDataset.length;
 	}
+
 }
